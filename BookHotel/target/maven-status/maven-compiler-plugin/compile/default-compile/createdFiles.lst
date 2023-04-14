@@ -1,0 +1,6 @@
+com/mycompany/bookhotel/business/BookingBusiness.class
+com/mycompany/bookhotel/endpoint/ApplicationConfig.class
+com/mycompany/bookhotel/helper/Booking.class
+com/mycompany/bookhotel/persistence/Booking_CRUD.class
+com/mycompany/bookhotel/endpoint/BookResource.class
+com/mycompany/bookhotel/helper/BookingsXML.class
