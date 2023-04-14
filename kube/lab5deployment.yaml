@@ -1,0 +1,298 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ratedb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ratedb
+spec:
+  selector:
+    app: ratedb
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ratedb
+spec:
+  selector:
+    matchLabels:
+      app: ratedb
+  template:
+    metadata:
+      labels:
+        app: ratedb
+    spec:
+      containers:
+        - name: ratedb
+          image: reetbhamra/coe692:ratedb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: storage
+              mountPath: /data/ratedb
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: ratedb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ratehotel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ratehotel
+  template:
+    metadata:
+      labels:
+        app: ratehotel
+    spec:
+      containers:
+        - name: ratehotel
+          image: reetbhamra/coe692:rateService
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: ratedb:3306
+            - name: kubeMQAddress
+              value: 10.24.14.133:50000
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bookingsdb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookingsdb
+spec:
+  selector:
+    app: bookingsdb
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookingsdb
+spec:
+  selector:
+    matchLabels:
+      app: bookingsdb
+  template:
+    metadata:
+      labels:
+        app: bookingsdb
+    spec:
+      containers:
+        - name: bookingsdb
+          image: reetbhamra/coe692:bookingsdb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: storage
+              mountPath: /data/bookingsdb
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: bookingsdb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookhotel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookhotel
+  template:
+    metadata:
+      labels:
+        app: bookhotel
+    spec:
+      containers:
+        - name: bookhotel
+          image: reetbhamra/coe692:bookService
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: bookingsdb:3306
+            - name: kubeMQAddress
+              value: 10.24.14.133:50000
+          imagePullPolicy: Always
+---
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: searchdb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: searchdb
+spec:
+  selector:
+    app: searchdb
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searchdb
+spec:
+  selector:
+    matchLabels:
+      app: searchdb
+  template:
+    metadata:
+      labels:
+        app: searchdb
+    spec:
+      containers:
+        - name: searchdb
+          image: reetbhamra/coe692:searchdb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: storage
+              mountPath: /data/searchdb
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: searchdb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: searchhotels
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: searchhotels
+  template:
+    metadata:
+      labels:
+        app: searchhotels
+    spec:
+      containers:
+        - name: searchhotels
+          image: reetbhamra/coe692:searchService
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: searchdb:3306
+            - name: kubeMQAddress
+              value: 10.24.14.133:50000
+          imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: reetbhamra/coe692:frontendService
+          ports:
+            - containerPort: 8080
+          env:
+            - name: searchService
+              value: searchhotels:80
+
+            - name: bookService
+              value: bookhotel:80
+
+            - name: rateService
+              value: ratehotel:80
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ratehotel
+spec:
+  selector:
+    app: ratehotel
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookhotel
+spec:
+  selector:
+    app: bookhotel
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: searchhotels
+spec:
+  selector:
+    app: searchhotels
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
