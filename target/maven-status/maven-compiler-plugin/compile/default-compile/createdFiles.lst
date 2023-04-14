@@ -1,0 +1,8 @@
+com/mycompany/helper/Booking.class
+com/mycompany/business/Business.class
+com/mycompany/helper/Hotel.class
+com/mycompany/helper/HotelsXML.class
+com/mycompany/helper/BookingsXML.class
+com/mycompany/helper/Room.class
+com/mycompany/frontend/FrontEnd.class
+com/mycompany/frontend/Authenticate.class
