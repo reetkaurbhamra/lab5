@@ -1,0 +1,6 @@
+com/mycompany/ratehotel/endpoint/ApplicationConfig.class
+com/mycompany/ratehotel/persistence/Rating_CRUD.class
+com/mycompany/ratehotel/business/Messaging.class
+com/mycompany/ratehotel/business/RateBusiness.class
+com/mycompany/ratehotel/helper/Rating.class
+com/mycompany/ratehotel/endpoint/RateResource.class
