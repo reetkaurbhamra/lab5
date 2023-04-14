@@ -1,3 +1,3 @@
 # lab5
 
-WEBSITE: https://github.com/reetkaurbhamra/lab5
+WEBSITE: http://34.118.128.144/FrontEnd/
